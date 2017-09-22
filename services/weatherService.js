@@ -17,6 +17,31 @@ var options = {
   port: 80
 };
 
+// Service Flow:
+// submits zip
+// check if weather for zip exists in db
+// if not, go get from api
+// if it does, check how old
+// if < 1 hour, return weather from db
+// if > 1 hour, go fetch updated weather from api, store in db, and return
+
+function fetchWeather(zipcode) {
+  // check if weather for zip exists in db
+  Weather.findOne({ zip: zipcode }).then(data => {
+    if (data) {
+      // we found a result in mongo
+    }
+    else {
+      // no current data for that zip in mongo
+    }
+  });
+}
+
+
+function checkExpiration(date) {
+
+}
+
 // function to call out to wunderground api and store result in mongo
 // is this refactored correctly? (min 5:00 of "Saving Model Instances")
 // need to create a new instance of weather
@@ -44,3 +69,5 @@ function storeAreaWeather(options, db) {
 
   http.request(options, callback).end();
 }
+
+

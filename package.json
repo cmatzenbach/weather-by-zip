@@ -6,11 +6,14 @@
   "scripts": {
     "start": "react-scripts start",
     "test": "react-scripts test --env=jsdom",
-    "dev": "nodemon index.js"
+    "server": "nodemon index.js",
+    "client": "npm run start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
-  "author": "",
+  "author": "Chris Matzenbach",
   "license": "ISC",
   "dependencies": {
+    "concurrently": "^3.5.0",
     "express": "^4.15.4",
     "mongoose": "^4.11.12",
     "nodemon": "^1.12.1",

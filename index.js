@@ -4,7 +4,7 @@ const http = require('http');
 const keys = require('./config/keys');
 const app = express();
 require('./models/Weather');
-require('./services/weatherService');
+//require('./services/weatherService');
 
 // mongoose.connect('mongodb://mongo:27017/weather');
 mongoose.connect(keys.mongoUri);
