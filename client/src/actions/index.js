@@ -8,16 +8,16 @@ export const fetchWeather = () => dispatch => {
 };
 
 function submitZip(values) {
-    axios
-      .post('/api/weather', values)
+  return axios.post('/api/weather', values).then(res => { console.log(res.data); });
       // .then(res => dispatch({ type: FETCH_WEATHER, payload: res.data }));
-    .then(function(res) {
-      console.log('SUBMITTED');
-      console.log(res.data);
-    })
-    .catch(function(err) {
-      console.log(err);
-    });
+    // .then(function(res) {
+    //   console.log('SUBMITTED');
+    //   console.log(res.data);
+    //   return(res);
+    // })
+    // .catch(function(err) {
+    //   console.log(err);
+    // });
 }
 
 export default submitZip;

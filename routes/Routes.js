@@ -8,8 +8,7 @@ module.exports = app => {
   });
   // send zip to api to get weather data
   app.post('/api/weather', (req, res) => {
-    console.log("WORKING");
-    var zip = Number(req.body.zip);
+    var zip = Number(req.body.data);
     weatherService.fetchWeather(zip, function(entry) {
       if (entry) {
         weatherService.checkExpiration(entry);

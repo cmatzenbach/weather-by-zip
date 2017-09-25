@@ -5,8 +5,8 @@ const moment = require('moment');
 
 
 // set up mongodb connection
-// mongoose.connect('mongodb://mongo:27017/weather');
-mongoose.connect(keys.mongoUri);
+mongoose.connect('mongodb://mongo:27017');
+// mongoose.connect(keys.mongoUri);
 const db = mongoose.connection;
 
 const Weather = mongoose.model('weatherdata'); // is this the correct reference?
@@ -40,6 +40,7 @@ module.exports = {
 
     // get minute difference between two dates
     var timeDiff = moment(currentDate,"MM/DD/YYYY HH:mm").diff(moment(updateDate,"MM/DD/YYYY HH:mm"), 'minutes');
+    console.log("TIME DIFF: " + timeDiff);
 
     if (timeDiff > 60) {
       // now we need to refresh data in db - TODO - currently just adding data to db
@@ -58,12 +59,14 @@ module.exports = {
 
     // callback to send to wunderground api
     var callback = function(response) {
+      console.log("CALLBACK");
       var str = '';
       response.on('data', function(chunk) {
         str += chunk;
       });
       response.on('end', function() {
         var jsonResult = JSON.parse(str);
+        console.log(jsonResult);
         console.log(Date.parse(jsonResult.current_observation.observation_time_rfc822));
         // take json data and store in new model to send to db
         new Weather({

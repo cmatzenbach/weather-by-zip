@@ -12,7 +12,7 @@ require('./models/Weather');
 app.use(bodyParser.json());
 
 // mongoose.connect('mongodb://mongo:27017/weather');
-mongoose.connect(keys.mongoUri);
+mongoose.connect("mongodb://mongo:27017");
 const db = mongoose.connection;
 
 var options = {
