@@ -1,21 +1,16 @@
 const mongoose = require('mongoose');
 const http = require('http');
 const keys = require('../config/keys');
+const moment = require('moment');
 
-const Weather = mongoose.models('weatherdata'); // is this the correct reference?
 
 // set up mongodb connection
 // mongoose.connect('mongodb://mongo:27017/weather');
 mongoose.connect(keys.mongoUri);
 const db = mongoose.connection;
 
-// set up wunderground api connection values
-var options = {
-  host: 'api.wunderground.com',
-  path: '/api/' + keys.wundergroundKey + '/conditions/q/33143.json',
-  method: 'GET',
-  port: 80
-};
+const Weather = mongoose.model('weatherdata'); // is this the correct reference?
+
 
 // Service Flow:
 // submits zip
@@ -25,49 +20,71 @@ var options = {
 // if < 1 hour, return weather from db
 // if > 1 hour, go fetch updated weather from api, store in db, and return
 
-function fetchWeather(zipcode) {
-  // check if weather for zip exists in db
-  Weather.findOne({ zip: zipcode }).then(data => {
-    if (data) {
-      // we found a result in mongo
-    }
-    else {
-      // no current data for that zip in mongo
-    }
-  });
-}
+module.exports = {
 
-
-function checkExpiration(date) {
-
-}
-
-// function to call out to wunderground api and store result in mongo
-// is this refactored correctly? (min 5:00 of "Saving Model Instances")
-// need to create a new instance of weather
-// need to check to see if data is already in mongo; if it is and is less than an hour old,
-// then don't overwrite record in mongo (min 1:30 of Mongoose Queries)
-function storeAreaWeather(options, db) {
-
-  var callback = function(response) {
-    var str = '';
-    response.on('data', function(chunk) {
-      str += chunk;
+ fetchWeather: function (zipcode, callback) {
+    // check if weather for zip exists in db
+    db.collection('weatherdatas').findOne({ 'zip': zipcode }, function(err, res) {
+      if (err) throw err;
+      if (res) callback & callback(res);
+      else callback & callback(false);
     });
-    response.on('end', function() {
-      var jsonResult = JSON.parse(str);
+  },
 
-      // new Weather({ temp: jsonsource.temp, city: jsonsource: city, ... }).save();
-      db.collection('weatherdata').save(jsonResult, function(err, records) {
-        if (err) throw err;
-        console.log('record added');
+  checkExpiration: function (data) {
+    // get current date in string to compare
+    var currentDate = moment().format("MM/DD/YYYY HH:mm");
+    // wunderground gives date in rfc822 format, so do some crazy things to get it to normal
+    var updateDate = moment(data.postedTime).format('ddd, DD MMM YYYY HH:mm:ss Z');
+    updateDate = moment(updateDate).utc().format("MM/DD/YYYY HH:mm");
+
+    // get minute difference between two dates
+    var timeDiff = moment(currentDate,"MM/DD/YYYY HH:mm").diff(moment(updateDate,"MM/DD/YYYY HH:mm"), 'minutes');
+
+    if (timeDiff > 60) {
+      // now we need to refresh data in db - TODO - currently just adding data to db
+      module.exports.storeAreaWeather(data.zip);
+    }
+  },
+
+  storeAreaWeather: function(zipcode) {
+    // set up wunderground api connection values
+    var options = {
+      host: 'api.wunderground.com',
+      path: '/api/' + keys.wundergroundKey + '/conditions/q/' + zipcode +'.json',
+      method: 'GET',
+      port: 80
+    };
+
+    // callback to send to wunderground api
+    var callback = function(response) {
+      var str = '';
+      response.on('data', function(chunk) {
+        str += chunk;
       });
+      response.on('end', function() {
+        var jsonResult = JSON.parse(str);
+        console.log(Date.parse(jsonResult.current_observation.observation_time_rfc822));
+        // take json data and store in new model to send to db
+        new Weather({
+          zip: zipcode,
+          city: jsonResult.current_observation.display_location.city,
+          state: jsonResult.current_observation.display_location.state,
+          weatherDesc: jsonResult.current_observation.weather,
+          temp: jsonResult.current_observation.temperature_string,
+          feelsLike: jsonResult.current_observation.feelslike_string,
+          postedTime: jsonResult.current_observation.observation_time_rfc822
+        }).save(function (err) {
+          if (err) return console.error(err);
+        });
+      });
+    };
 
-    });
+    // send request
+    http.request(options, callback).end();
+  }
+};
 
-  };
 
-  http.request(options, callback).end();
-}
 
 

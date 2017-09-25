@@ -1,21 +1,31 @@
 import React, { Component } from 'react';
+import { BrowserRouter, Route } from 'react-router-dom';
+import { connect } from 'react-redux';
+import * as actions from './actions';
+
 import logo from './logo.svg';
 import './App.css';
+import Header from './Header';
+import Home from './Home';
+import WeatherRes from './WeatherRes';
 
 class App extends Component {
+  componentDidMount() {
+    /* this.props.fetchWeather();*/
+  }
   render() {
     return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
+      <div>
+      <BrowserRouter>
+        <div>
+          <Header />
+          <Route path="/" component={Home} />
+          <Route exact path="/api/weather" component={WeatherRes} />
         </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+      </BrowserRouter>
       </div>
     );
   }
 }
 
-export default App;
+export default connect(null, actions) (App);

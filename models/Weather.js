@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 // city, state, time, weather, temperature, feelsLike
 // define model for weather data
 const weatherSchema = new Schema({
+  zip: Number,
   city: String,
   state: String,
   weatherDesc: String,
