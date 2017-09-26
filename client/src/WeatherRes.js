@@ -11,11 +11,14 @@ class WeatherRes extends Component {
     if (this.props.data === undefined) return null;
     else return (
       <div>
-        <div>City: {this.props.data.city}</div>
-        <div>State: {this.props.data.state}</div>
-        <div>Weather: {this.props.data.weatherDesc}</div>
-        <div>Current Temperature: {this.props.data.temp}</div>
-        <div>Feels Liked: {this.props.data.feelsLike}</div>
+        <div>{this.props.data.day1}</div>
+        <div><img src={this.props.data.day1forecastimg} /> {this.props.data.day1forecast}</div>
+        <br />
+        <div>{this.props.data.day2}</div>
+        <div><img src={this.props.data.day2forecastimg} /> {this.props.data.day2forecast}</div>
+        <br />
+        <div>{this.props.data.day3}</div>
+        <div><img src={this.props.data.day3forecastimg} /> {this.props.data.day3forecast}</div>
       </div>
     );
   }
