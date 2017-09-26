@@ -13,40 +13,32 @@ class ZipForm2 extends Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.validateField = this.validateField.bind(this);
-    this.validateForm = this.validateForm.bind(this);
   }
 
-  handleChange = (e) => {
-    // this.setState({value: event.target.value});
-    // const name = e.target.name;
-    // const value = e.target.value;
-    this.setState({value: e.target.value},
-                  (value) => {
-                    console.log(value);
-                    let valid;
-                    valid = value.match(/^(\d{5})?$/);
-                    console.log(valid);
-                        });
+  handleChange(e) {
+    // on every input from the user, update state and validate
+    this.setState({value: e.target.value});
+    this.validateField(e.target.value);
+    this.validateForm();
   }
 
   validateField(value) {
-    console.log('validatefield reached');
     let fieldValidationErrors = this.state.zipError;
     let isZipValid = this.state.zipValid;
 
+    // use regex to test for valid zip and update the state on validity status
     isZipValid = value.match(/^(\d{5})?$/);
-    console.log(isZipValid);
     fieldValidationErrors = isZipValid ? '' : 'Zip Code is invalid';
 
+    // update validity values in state and call function to set form validation state
     this.setState({zipError: fieldValidationErrors,
                    zipValid: isZipValid}, this.validateForm);
   }
 
   validateForm() {
+    // update form's validity in state (really this controls whether the user can submit or not)
     this.setState({formValid: this.state.zipValid});
   }
-
 
   handleSubmit(event) {
     axios.post('/api/weather', {data:this.state.value}).then(res => { console.log(res.data); this.props.onDone(res.data); });

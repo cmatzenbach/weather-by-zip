@@ -1,16 +1,19 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-// city, state, time, weather, temperature, feelsLike
 // define model for weather data
 const weatherSchema = new Schema({
   zip: Number,
-  city: String,
-  state: String,
-  weatherDesc: String,
-  temp: String,
-  feelsLike: String,
-  postedTime: String // this shouldn't be a string
+  day1: String,
+  day1forecast: String,
+  day1forecastimg: String,
+  day2: String,
+  day2forecast: String,
+  day2forecastimg: String,
+  day3: String,
+  day3forecast: String,
+  day3forecastimg: String,
+  postedTime: String
 });
 
 mongoose.model('weatherdata', weatherSchema);

@@ -12,11 +12,13 @@ module.exports = app => {
     weatherService.fetchWeather(zip, function(entry) {
       if (entry) {
         weatherService.checkExpiration(entry);
+        res.send(entry);
       }
       else if (!entry) {
-        weatherService.storeAreaWeather(zip);
+        weatherService.storeAreaWeather(zip, function(err, entry) {
+          res.send(entry);
+        });
       }
-      res.send(entry);
     }); // send this to check for zip in database
   });
 };
