@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import './ZipForm.css';
 
-class ZipForm2 extends Component {
+class ZipForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -60,4 +60,4 @@ class ZipForm2 extends Component {
   }
 }
 
-export default ZipForm2;
+export default ZipForm;
