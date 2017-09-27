@@ -9,4 +9,4 @@ npm install
 
 # switch back to root folder and run application
 cd ../
-npm run dev
+echo "Now download the emailed .env file to this directory, then run 'npm start' to start the application!"
