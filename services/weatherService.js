@@ -1,11 +1,9 @@
 const mongoose = require('mongoose');
 const http = require('http');
-const keys = require('../config/keys');
 const moment = require('moment-timezone');
 
 // set up mongodb connection
-// mongoose.connect('mongodb://mongo:27017');
-mongoose.connect(keys.mongoUri);
+mongoose.connect(process.env.DB_URI);
 const db = mongoose.connection;
 
 const Weather = mongoose.model('weatherdata'); // is this the correct reference?
@@ -43,7 +41,7 @@ module.exports = {
     // set up wunderground api connection values
     var options = {
       host: 'api.wunderground.com',
-      path: '/api/' + keys.wundergroundKey + '/forecast/q/' + zipcode +'.json',
+      path: '/api/' + process.env.WU_KEY + '/forecast/q/' + zipcode +'.json',
       method: 'GET',
       port: 80
     };
@@ -92,11 +90,10 @@ module.exports = {
 
   // called when weather exists in db but is expired; get new weather data and overwrite in db
   updateAreaWeather: function(zipcode, cb) {
-    console.log("UPDATE");
     // set up wunderground api connection values
     var options = {
       host: 'api.wunderground.com',
-      path: '/api/' + keys.wundergroundKey + '/forecast/q/' + zipcode +'.json',
+      path: '/api/' + process.env.WU_KEY + '/forecast/q/' + zipcode +'.json',
       method: 'GET',
       port: 80
     };
