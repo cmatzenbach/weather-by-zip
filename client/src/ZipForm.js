@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import './ZipForm.css';
 
+const styles = {
+  marginLeft: '11%'
+};
+
 class ZipForm extends Component {
   constructor(props) {
     super(props);
@@ -42,14 +46,18 @@ class ZipForm extends Component {
   }
 
   handleSubmit(event) {
-    axios.post('/api/weather', {data:this.state.value}).then(res => { console.log(res.data); this.props.onDone(res.data); });
+    // set state as waiting, which activates spinner
+    this.props.onWait(true);
+    // send out GET request, pass back data once done and turn waiting to false to deactivate spinner
+    axios.get('/api/weather', { params: {data:this.state.value} }).then(res => { this.props.onDone(res.data); this.props.onWait(false); });
     this.setState({value: ''});
+    // prevent page from refreshing
     event.preventDefault();
   }
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
+      <form onSubmit={this.handleSubmit} style={styles}>
         <input type="text" value={this.state.value} onChange={this.handleChange} placeholder="ZIP Code" />
         <input type="submit" value="Submit" disabled={!this.state.formValid} />
         <div className="error-field">

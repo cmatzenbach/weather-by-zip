@@ -11,12 +11,17 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      value: null
+      value: null,
+      load: false
     };
   }
 
-  handleDone = (data) => {
-    this.setState({data});
+  handleDone = (d) => {
+    this.setState({data: d});
+  }
+
+  showSpin = (l) => {
+    this.setState({load: l});
   }
 
   render() {
@@ -24,8 +29,8 @@ class App extends Component {
       <div>
         <Header />
         <Home />
-        <ZipForm onDone={this.handleDone} />
-        <WeatherRes data={this.state.data} />
+        <ZipForm onDone={this.handleDone} onWait={this.showSpin} />
+        <WeatherRes data={this.state.data} load={this.state.load} />
       </div>
     );
   }

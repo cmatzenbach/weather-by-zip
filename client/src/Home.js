@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
 
+const styles = {
+  marginLeft: '1%'
+}
+
 class Home extends Component {
   render () {
     return (
-      <div>
-        <p className="App-intro">
-          Please enter your ZIP Code in the box below to see local weather forecast
+      <div style={styles}>
+        <p>
+          Please enter your ZIP Code in the box below to see your local weather forecast
         </p>
       </div>
     );
