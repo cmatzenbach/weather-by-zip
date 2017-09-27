@@ -2,8 +2,6 @@ const mongoose = require('mongoose');
 const http = require('http');
 const keys = require('../config/keys');
 const moment = require('moment-timezone');
-// const momentTz = require('moment-timezone');
-
 
 // set up mongodb connection
 // mongoose.connect('mongodb://mongo:27017');
@@ -12,17 +10,9 @@ const db = mongoose.connection;
 
 const Weather = mongoose.model('weatherdata'); // is this the correct reference?
 
-
-// Service Flow:
-// submits zip
-// check if weather for zip exists in db
-// if not, go get from api
-// if it does, check how old
-// if < 1 hour, return weather from db
-// if > 1 hour, go fetch updated weather from api, store in db, and return
-
 module.exports = {
 
+  // check if weather for zip already exists in db
  fetchWeather: function (zipcode, callback) {
     // check if weather for zip exists in db
     db.collection('weatherdatas').findOne({ "zip": zipcode }, function(err, res) {
@@ -32,28 +22,23 @@ module.exports = {
     });
   },
 
+  // check if data for that zipcode is expired; return boolean
   checkExpiration: function (data) {
-    // get current time in string to compare
-    // is this checking for day rollovers too?
+    // get current time in moment obj to compare
     var currentTime = moment().utc();
+    // get posted time from db in moment obj to compare
     var updateTime = moment(data.postedTime);
     var timeDiff = currentTime.diff(updateTime, 'minutes');
 
-    console.log('TIME DIFF: ' + timeDiff);
     if (timeDiff > 60) {
       return true;
     }
     else {
       return false;
     }
-      // now we need to refresh data in db
-      // TODO - PASS CALLBACK INTO THIS FUNCTION
-      // module.exports.updateAreaWeather(data.zip, function(err, entry) {
-      //   // res.send(entry);
-      //   return entry;
-      // });
   },
 
+  // grab weather data from wunderground API and store in db
   storeAreaWeather: function(zipcode, cb) {
     // set up wunderground api connection values
     var options = {
@@ -105,6 +90,7 @@ module.exports = {
     http.request(options, callback).end();
   },
 
+  // called when weather exists in db but is expired; get new weather data and overwrite in db
   updateAreaWeather: function(zipcode, cb) {
     console.log("UPDATE");
     // set up wunderground api connection values
@@ -143,13 +129,7 @@ module.exports = {
           postedTime: currentTime
         };
         Weather.findOneAndUpdate({"zip": zipcode}, updatedSchema, {upsert: false}, function (err, res) {
-          if (err) throw err;
           cb(err, res);
-          // if (err) return console.error(err);
-          // else {
-          //   console.log("GOOSE UPDATED");
-          //   console.log(res);
-          // }
         });
       });
     };
