@@ -22,7 +22,6 @@
     "nodemon": "^1.12.1",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
-    "react-scripts": "^1.0.13",
-    "rfc822-date": "0.0.3"
+    "react-scripts": "^1.0.13"
   }
 }
