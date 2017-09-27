@@ -25,10 +25,10 @@ module.exports = {
 
  fetchWeather: function (zipcode, callback) {
     // check if weather for zip exists in db
-    db.collection('weatherdatas').findOne({ 'zip': zipcode }, function(err, res) {
+    db.collection('weatherdatas').findOne({ "zip": zipcode }, function(err, res) {
       if (err) throw err;
-      if (res) callback & callback(res);
-      else callback & callback(false);
+      if (res) callback(err, res);
+      else callback(err, false);
     });
   },
 
@@ -41,9 +41,17 @@ module.exports = {
 
     console.log('TIME DIFF: ' + timeDiff);
     if (timeDiff > 60) {
-      // now we need to refresh data in db - TODO - currently just adding data to db
-      module.exports.updateAreaWeather(data.zip);
+      return true;
     }
+    else {
+      return false;
+    }
+      // now we need to refresh data in db
+      // TODO - PASS CALLBACK INTO THIS FUNCTION
+      // module.exports.updateAreaWeather(data.zip, function(err, entry) {
+      //   // res.send(entry);
+      //   return entry;
+      // });
   },
 
   storeAreaWeather: function(zipcode, cb) {
@@ -63,6 +71,13 @@ module.exports = {
       });
       response.on('end', function() {
         var jsonResult = JSON.parse(str);
+
+        // if zip doesn't exist, return error and break
+        if (jsonResult.response.error) {
+          cb(null, {error: 'Zip Code not found'});
+          return '';
+        }
+
         // get current time as moment ISO string to store in db
         var currentTime = moment().utc().toISOString();
 
@@ -79,7 +94,8 @@ module.exports = {
           day3forecast: jsonResult.forecast.txt_forecast.forecastday[4].fcttext,
           day3forecastimg: jsonResult.forecast.txt_forecast.forecastday[4].icon_url,
           postedTime: currentTime
-        }).save(function (err, res) {
+        })
+        .save(function (err, res) {
           cb(err, res);
         });
       });
@@ -89,7 +105,8 @@ module.exports = {
     http.request(options, callback).end();
   },
 
-  updateAreaWeather: function(zipcode) {
+  updateAreaWeather: function(zipcode, cb) {
+    console.log("UPDATE");
     // set up wunderground api connection values
     var options = {
       host: 'api.wunderground.com',
@@ -106,12 +123,13 @@ module.exports = {
       });
       response.on('end', function() {
         var jsonResult = JSON.parse(str);
-        console.log(jsonResult);
+
         // get current time as moment ISO string to store in db
         var currentTime = moment().utc().toISOString();
 
-        // take json data and store in new model to send to db
-        var updatedSchema = new Weather({
+        // take json data and store in empty object to update model in db
+        // do not assign to model object, or id's won't match and mongo won't allow update
+        var updatedSchema = {
           zip: zipcode,
           day1: jsonResult.forecast.txt_forecast.forecastday[0].title,
           day1forecast: jsonResult.forecast.txt_forecast.forecastday[0].fcttext,
@@ -123,13 +141,15 @@ module.exports = {
           day3forecast: jsonResult.forecast.txt_forecast.forecastday[4].fcttext,
           day3forecastimg: jsonResult.forecast.txt_forecast.forecastday[4].icon_url,
           postedTime: currentTime
-        });
-        Weather.findOneAndUpdate({'zip': zipcode}, updatedSchema, {upsert: false}, function (err, res) {
-          if (err) return console.error(err);
-          else {
-            console.log("GOOSE UPDATED");
-            console.log(res);
-          }
+        };
+        Weather.findOneAndUpdate({"zip": zipcode}, updatedSchema, {upsert: false}, function (err, res) {
+          if (err) throw err;
+          cb(err, res);
+          // if (err) return console.error(err);
+          // else {
+          //   console.log("GOOSE UPDATED");
+          //   console.log(res);
+          // }
         });
       });
     };

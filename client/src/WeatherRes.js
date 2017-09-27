@@ -9,6 +9,15 @@ class WeatherRes extends Component {
     console.log('muh props');
     console.log(this.props);
     if (this.props.data === undefined) return null;
+
+    else if (this.props.data.error) {
+      return (
+        <div>
+          <p>ZIP Code does not exist. Please enter a valid ZIP Code and re-submit.</p>
+        </div>
+      );
+    }
+
     else return (
       <div>
         <div>{this.props.data.day1}</div>

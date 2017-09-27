@@ -9,12 +9,19 @@ module.exports = app => {
   // send zip to api to get weather data
   app.post('/api/weather', (req, res) => {
     var zip = Number(req.body.data);
-    weatherService.fetchWeather(zip, function(entry) {
+    weatherService.fetchWeather(zip, function(err, entry) {
       if (entry) {
-        weatherService.checkExpiration(entry);
-        res.send(entry);
+        console.log("ROUTE 1");
+        let expired = weatherService.checkExpiration(entry);
+        if (expired) {
+          weatherService.updateAreaWeather(zip, function(err, entry) {
+            res.send(entry);
+          });
+        }
+        else res.send(entry);
       }
       else if (!entry) {
+        console.log("ROUTE 2");
         weatherService.storeAreaWeather(zip, function(err, entry) {
           res.send(entry);
         });

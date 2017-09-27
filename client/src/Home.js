@@ -5,7 +5,7 @@ class Home extends Component {
     return (
       <div>
         <p className="App-intro">
-          Please enter your zip code in the box below to see local weather forecast
+          Please enter your ZIP Code in the box below to see local weather forecast
         </p>
       </div>
     );
