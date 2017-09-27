@@ -4,7 +4,7 @@
 npm install
 
 # switch to client folder and install react dependencies
-cd /client
+cd client/
 npm install
 
 # switch back to root folder and run application
